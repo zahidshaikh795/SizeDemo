@@ -30,6 +30,7 @@ class ViewController: UIViewController {
         self.l2.text = "1"
       //  self.l3.text = "1"
         self.l3.isHidden = true
+        // git checking
     }
 }
 extension ViewController: UITableViewDelegate,UITableViewDataSource{
