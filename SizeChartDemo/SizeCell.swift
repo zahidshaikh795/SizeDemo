@@ -25,6 +25,7 @@ class SizeCell: UITableViewCell {
         self.lbl5.text = str.foot
         self.lbl6.text = str.foot
         self.lbl7.text = str.foot
+       // 'kkkk
     }
     
 }
