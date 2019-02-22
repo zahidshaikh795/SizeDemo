@@ -11,54 +11,72 @@ import UIKit
 class ViewController: UIViewController {
     
     
-    @IBOutlet weak var l4: UILabel!
-    @IBOutlet weak var l3: UILabel!
-    @IBOutlet weak var l2: UILabel!
-    @IBOutlet weak var label1: UILabel!
-    @IBOutlet weak var tableview: UITableView!
-    let item1 = Size(type: "medium", us: "11", uk: "21", foot: "31", feet: "41")
-    let item2 = Size(type: "medium", us: "11", uk: "21", foot: "31", feet: "41")
-    let item3 = Size(type: "medium", us: "11", uk: "21", foot: "31", feet: "41")
-    let item4 = Size(type: "medium", us: "11", uk: "21", foot: "31", feet: "41")
-    let item5 = Size(type: "medium", us: "11", uk: "21", foot: "31", feet: "41")
-    var arr = [Size]()
+    @IBOutlet weak var tableView: UITableView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        arr.append(contentsOf: [item1,item2,item3,item4,item5])
-        self.label1.text = "1"
-        self.l4.text = "1"
-        self.l2.text = "1"
-      //  self.l3.text = "1"
-        self.l3.isHidden = true
-        // git checking
-    }
-}
-extension ViewController: UITableViewDelegate,UITableViewDataSource{
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return arr.count
+        tableView.backgroundColor = .starwarsSpaceBlue
+        //groupify()
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "sizeCell", for: indexPath) as! SizeCell
-        let data = arr[indexPath.row]
-        cell.displayCell(str: data)
-        return cell
+    func syncWork(completion: @escaping () -> Void){
+        let northZone = DispatchQueue(label: "perform_task_with_team_north")
+        let southZone = DispatchQueue(label: "perform_task_with_team_south")
+        
+        northZone.sync {
+            for numer in 1...3{ print("North \(numer)")}
+        }
+        southZone.sync {
+            for numer in 1...3{ print("South \(numer)") }
+        }
     }
-    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 50
+    func asyncWork(completion: @escaping () -> Void){
+        let northZone = DispatchQueue(label: "perform_task_with_team_north")
+        let southZone = DispatchQueue(label: "perform_task_with_team_south")
+        
+        northZone.async {
+            for numer in 21...25{ print("NorthAsync \(numer)") }
+        }
+        southZone.async {
+            for numer in 21...25{ print("SouthAsync \(numer)") }
+        }
     }
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 50
+    func groupify(){
+        let dispatchGroup = DispatchGroup()
+        
+        dispatchGroup.enter()
+        syncWork() { dispatchGroup.leave() }
+        
+        dispatchGroup.enter()
+        asyncWork() { dispatchGroup.leave() }
+        
+        dispatchGroup.notify(queue: DispatchQueue.main) {
+            print("work done")
+        }
     }
-    
-    
     
 }
 
-struct Size {
-    let type: String?
-    let us: String?
-    let uk: String?
-    let foot:String?
-    let feet: String?
+
+extension ViewController: UITableViewDelegate, UITableViewDataSource{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 25
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! TableViewCell
+        
+        cell.displaycell()
+        return cell
+    }
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let maskPath = UIBezierPath(roundedRect: cell.bounds, byRoundingCorners: UIRectCorner(arrayLiteral: .bottomLeft,.bottomRight), cornerRadii: CGSize(width: 10.0, height: 10.0))
+        let masklayer = CAShapeLayer()
+        masklayer.frame = cell.bounds
+        masklayer.path = maskPath.cgPath
+        //cell.layer.backgroundColor = UIColor.red.cgColor
+        cell.layer.mask = masklayer
+    }
+    
+    
 }
